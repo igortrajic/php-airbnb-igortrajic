@@ -17,7 +17,7 @@ class ApartmentSeeder extends Seeder
         $users = User::all();
 
         Apartment::factory(10)->create([
-            'owner_id' => fake()->randomElement($users->pluck('id')->toArray()),
+            'owner_id' => fn () => $users->isNotEmpty() ? $users->random()->id : User::factory(),
         ]);
     }
 }
