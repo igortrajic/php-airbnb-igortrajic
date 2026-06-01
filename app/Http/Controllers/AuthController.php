@@ -26,14 +26,14 @@ class AuthController extends Controller
     {
         $user = User::create($request->safe()->only(['name', 'email', 'password']));
         Auth::login($user);
-        return redirect('/');
+        return redirect()->intended(route('apartments.create'));
     }
 
     public function login(LoginRequest $request): RedirectResponse
     {
         if (Auth::attempt($request->safe()->only(['email', 'password']), $request->boolean('remember'))) {
             $request->session()->regenerate();
-            return redirect('/');
+            return redirect()->intended(route('apartments.create'))->with('success', 'Logged in successfully');
         }
 
         return to_route('login')->with('error', 'Invalid credentials');
@@ -47,7 +47,7 @@ class AuthController extends Controller
 
         $request->session()->regenerateToken();
 
-        return redirect('/');
+        return redirect('login')->with('success', 'Logged out successfully');
     }
 
 }
