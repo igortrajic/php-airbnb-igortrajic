@@ -19,10 +19,9 @@ class ApartmentController extends Controller
     {
         $query = Apartment::with('images');
 
-        // 1. Handle Filters
-        if ($request->filter === 'my_apartments') {
+        if ($request->filter === 'my_apartments' && Auth::check()) {
             $query->where('owner_id', Auth::id());
-        } elseif ($request->filter === 'my_bookings') {
+        } elseif ($request->filter === 'my_bookings' && Auth::check()) {
             $query->whereHas('bookings', function($q) {
                 $q->where('user_id', Auth::id());
             });

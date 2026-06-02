@@ -16,7 +16,7 @@
         <div class="flex items-center gap-6">
             <a href="{{ route('apartments.create') }}" class="text-sm font-medium text-teal-600 hover:text-teal-700 transition">List your property</a>
             <div class="h-4 w-px bg-gray-300"></div>
-            <span class="text-sm text-gray-500">{{ Auth::user()->name ?? 'User' }}</span>
+            <span class="text-sm text-gray-500">{{ Auth::user()?->name ?? 'User' }}</span>
             <form action="{{ route('logout') }}" method="POST">
                 @csrf
                 <button type="submit" class="text-sm text-gray-500 hover:text-red-500 transition">Logout</button>
@@ -93,7 +93,9 @@
                             </div>
                         @endif
                     </div>
-
+                    <div class="mt-8">
+                        {{ $apartments->links() }}
+                    </div>
                    <div>
                         <div class="flex justify-between items-start">
                             <h3 class="font-medium text-gray-900 truncate pr-4">{{ $apartment->city }}</h3>
