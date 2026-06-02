@@ -25,10 +25,10 @@ class StoreApartmentRequest extends FormRequest
         return [
             'title' => 'required|string|max:100',
             'city' => 'required|string|max:100',
-            'price_night' => 'required|numeric|min:0',
-            'max_guests' => 'required|integer|min:1',
-            'size' => 'required|numeric|min:0',
-            'images' => 'nullable|array',
+            'price_night' => 'required|numeric|min:0|max:10000',
+            'max_guests' => 'required|integer|min:1|max:100',
+            'size' => 'required|numeric|min:0|max:10000',
+            'images' => 'nullable|array|max:5',
             'images.*' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ];
     }

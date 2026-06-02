@@ -7,6 +7,7 @@ use Illuminate\Http\RedirectResponse;
 use App\Http\Requests\StoreApartmentRequest;
 use App\Models\Apartment;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class ApartmentController extends Controller
 {
@@ -35,18 +36,23 @@ class ApartmentController extends Controller
         $validated = $request->validated();
         $validated['owner_id'] = Auth::id();
 
-        $apartment = Apartment::create($validated);
+        try {
+            DB::transaction(function () use ($validated, $request) {
+                $apartment = Apartment::create($validated);
 
-        if ($request->hasFile('images')) {
-            foreach ($request->file('images') as $image) {
-                $path = $image->store('apartment_images', 'public');
-                $apartment->images()->create(['image_url' => $path]);
-            }
+                if ($request->hasFile('images')) {
+                    foreach ($request->file('images') as $image) {
+                        $path = $image->store('apartment_images', 'public');
+                        $apartment->images()->create(['image_url' => $path]);
+                    }
+                }
+            });
+            return redirect()->route('apartments.index')->with('success', 'Apartment created successfully.');
+            
+        } catch (\Exception $e) {
+            return back()->withErrors('Failed to create apartment: ' . $e->getMessage())->withInput();
         }
-
-        return redirect()->route('apartments.index')->with('success', 'Apartment created successfully.');
     }
-
 
     public function show(string $id)
     {
