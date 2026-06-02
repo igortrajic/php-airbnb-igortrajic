@@ -31,26 +31,37 @@ class ApartmentController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreApartmentRequest $request): RedirectResponse
+        public function store(StoreApartmentRequest $request): RedirectResponse
     {
-        $validated = $request->validated();
+        $validated = $request->safe()->except(['images']);
         $validated['owner_id'] = Auth::id();
+        $uploadedImages = [];
 
         try {
-            DB::transaction(function () use ($validated, $request) {
+            DB::transaction(function () use ($validated, $request, &$uploadedImages) {
                 $apartment = Apartment::create($validated);
 
                 if ($request->hasFile('images')) {
                     foreach ($request->file('images') as $image) {
                         $path = $image->store('apartment_images', 'public');
+                        $uploadedImages[] = $path;
                         $apartment->images()->create(['image_url' => $path]);
                     }
                 }
             });
+
             return redirect()->route('apartments.index')->with('success', 'Apartment created successfully.');
-            
         } catch (\Exception $e) {
-            return back()->withErrors('Failed to create apartment: ' . $e->getMessage())->withInput();
+            foreach ($uploadedImages as $path) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($path);
+            }
+
+            \Illuminate\Support\Facades\Log::error('Failed to create apartment: ' . $e->getMessage(), [
+                'exception' => $e,
+                'user_id' => Auth::id(),
+            ]);
+
+            return back()->withErrors('Failed to create apartment. Please try again.')->withInput();
         }
     }
 

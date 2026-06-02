@@ -36,7 +36,7 @@ class AuthController extends Controller
             return redirect()->intended(route('apartments.create'))->with('success', 'Logged in successfully');
         }
 
-        return to_route('login')->with('error', 'Invalid credentials');
+        return redirect()->route('login')->with('error', 'Invalid credentials');
     }
 
     public function logout(Request $request): RedirectResponse
@@ -47,7 +47,7 @@ class AuthController extends Controller
 
         $request->session()->regenerateToken();
 
-        return redirect('login')->with('success', 'Logged out successfully');
+        return redirect()->route('login')->with('success', 'Logged out successfully');
     }
 
 }
