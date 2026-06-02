@@ -8,15 +8,43 @@ use App\Http\Requests\StoreApartmentRequest;
 use App\Models\Apartment;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use App\Http\Requests\IndexApartmentRequest;
 
 class ApartmentController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(IndexApartmentRequest $request)
     {
-        //
+        $query = Apartment::with('images');
+
+        // 1. Handle Filters
+        if ($request->filter === 'my_apartments') {
+            $query->where('owner_id', Auth::id());
+        } elseif ($request->filter === 'my_bookings') {
+            $query->whereHas('bookings', function($q) {
+                $q->where('user_id', Auth::id());
+            });
+        }
+
+        if ($request->filled('location')) {
+            $query->where('city', 'like', '%' . $request->location . '%');
+        }
+
+        $sort = $request->input('sort', 'created_desc');
+
+        match ($sort) {
+            'price_asc' => $query->orderBy('price_night', 'asc'),
+            'price_desc' => $query->orderBy('price_night', 'desc'),
+            'guests_asc' => $query->orderBy('max_guests', 'asc'),
+            'guests_desc' => $query->orderBy('max_guests', 'desc'),
+            default => $query->latest(), 
+        };
+
+        $apartments = $query->paginate(12)->withQueryString(); 
+
+        return view('apartments.index', compact('apartments'));
     }
 
     /**

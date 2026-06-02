@@ -16,13 +16,13 @@ class Booking extends Model
         'check_in',
         'check_out',
         'total_price',
-        'id_user',
+        'user_id',
         'apartment_id',
     ];
 
     public function user()
     {
-        return $this->belongsTo(User::class, 'id_user');
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     public function apartment()
