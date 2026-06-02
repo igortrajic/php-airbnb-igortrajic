@@ -15,7 +15,7 @@ class BookingSeeder extends Seeder
         $apartments = Apartment::all();
 
         Booking::factory(10)->create([
-            'id_user'      => fn () => $users->isNotEmpty() ? $users->random()->id : User::factory(),
+            'user_id'      => fn () => $users->isNotEmpty() ? $users->random()->id : User::factory(),
             'apartment_id' => fn () => $apartments->isNotEmpty() ? $apartments->random()->id : Apartment::factory(),
         ]);
     }

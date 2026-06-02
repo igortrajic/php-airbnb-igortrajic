@@ -14,7 +14,7 @@ return new class extends Migration
             $table->date('check_in');                             
             $table->date('check_out');                            
             $table->decimal('total_price', total: 8, places: 2);   
-            $table->foreignId('id_user')                          
+            $table->foreignId('user_id')                          
                   ->constrained('users')
                   ->restrictOnDelete();
             $table->foreignId('apartment_id')                     
