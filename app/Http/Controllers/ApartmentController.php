@@ -94,7 +94,8 @@ class ApartmentController extends Controller
 
     public function show(string $id)
     {
-        //
+        $apartment = Apartment::with('images', 'owner')->findOrFail($id);
+        return view('apartments.show', compact('apartment'));
     }
 
     /**
