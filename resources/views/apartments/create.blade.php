@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>New Apartment - StayFinder</title>
     @vite(['resources/css/app.css'])
 </head>
+
 <body class="bg-gray-50 min-h-screen">
 
     <x-layout.navbar />
@@ -13,7 +15,7 @@
         <div class="flex items-center gap-3 mb-6">
             <a href="{{ route('apartments.index') }}" class="text-gray-400 hover:text-gray-600 transition">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                 </svg>
             </a>
             <h1 class="text-xl font-medium text-gray-900">List a new apartment</h1>
@@ -33,9 +35,12 @@
 
                 <x-form.section title="Details">
                     <div class="grid grid-cols-3 gap-4">
-                        <x-form.input name="price_night" label="Price / night (€)" type="number" placeholder="85" min="0" step="0.01" />
-                        <x-form.input name="max_guests" label="Max guests" type="number" placeholder="4" min="1" />
-                        <x-form.input name="size" label="Size (m²)" type="number" placeholder="35" min="0" step="0.1" />
+                        <x-form.input name="price_night" label="Price / night (€)" type="number" placeholder="85"
+                            min="0" step="0.01" />
+                        <x-form.input name="max_guests" label="Max guests" type="number" placeholder="4"
+                            min="1" />
+                        <x-form.input name="size" label="Size (m²)" type="number" placeholder="35" min="0"
+                            step="0.1" />
                     </div>
                 </x-form.section>
 
@@ -50,4 +55,5 @@
     </div>
 
 </body>
+
 </html>

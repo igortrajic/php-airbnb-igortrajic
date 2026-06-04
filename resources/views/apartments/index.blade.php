@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>Explore Apartments - StayFinder</title>
     @vite(['resources/css/app.css'])
 </head>
+
 <body class="bg-white min-h-screen">
 
     <x-layout.navbar :showListProperty="true" />
@@ -21,10 +23,11 @@
             @endforelse
         </div>
 
-        @if($apartments->hasPages())
+        @if ($apartments->hasPages())
             <div class="mt-8">{{ $apartments->links() }}</div>
         @endif
     </div>
 
 </body>
+
 </html>
