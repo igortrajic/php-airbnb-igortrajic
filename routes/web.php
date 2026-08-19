@@ -25,3 +25,4 @@ Route::middleware('auth')->group(function () {
 
 Route::get('/apartments', [ApartmentController::class, 'index'])->name('apartments.index');
 Route::get('/apartments/{apartment}', [ApartmentController::class, 'show'])->name('apartments.show');
+Route::get('/my-bookings', [BookingController::class, 'index'])->name('bookings.index')->middleware('auth');
