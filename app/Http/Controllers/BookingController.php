@@ -63,4 +63,18 @@ class BookingController extends Controller
             ->route('apartments.show', $apartment->id)
             ->with('success', 'Booking confirmed!');
     }
+    public function destroy(Booking $booking)
+    {
+        if ($booking->user_id !== auth()->id()) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        if ($booking->check_in <= now()->toDateString()) {
+            return back()->withErrors(['booking' => 'Current or past bookings cannot be cancelled.']);
+        }
+
+        $booking->delete();
+
+        return back()->with('success', 'Booking cancelled successfully. The apartment is now available.');
+    }
 }

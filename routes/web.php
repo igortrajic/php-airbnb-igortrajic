@@ -20,6 +20,7 @@ Route::middleware('auth')->group(function () {
     Route::put('/apartments/{apartment}', [ApartmentController::class, 'update'])->name('apartments.update');
     Route::delete('/apartments/{apartment}', [ApartmentController::class, 'destroy'])->name('apartments.destroy');
     Route::post('/bookings', [BookingController::class, 'store'])->name('bookings.store');
+    Route::delete('/bookings/{booking}', [BookingController::class, 'destroy'])->name('bookings.destroy');
 });
 
 Route::get('/apartments', [ApartmentController::class, 'index'])->name('apartments.index');
