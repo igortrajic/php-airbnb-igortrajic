@@ -26,14 +26,7 @@
         <x-apartment.header :apartment="$apartment" :nextAvailable="$nextAvailable" />
         <x-apartment.stats :apartment="$apartment" />
         
-        @php
-            $userBooking = auth()->check() ? \App\Models\Booking::where('apartment_id', $apartment->id)
-                ->where('user_id', auth()->id())
-                ->where('check_out', '>=', now())
-                ->first() : null;
-        @endphp
-
-@if($userBooking)
+        @if($userBooking)
             <div class="p-6 bg-gray-50 border border-gray-200 rounded-2xl mt-6">
                 <h3 class="text-lg font-semibold text-gray-900 mb-2">Your Reservation</h3>
                 <p class="text-sm text-gray-600 mb-4">
@@ -51,8 +44,7 @@
         @else
             <x-booking.cta 
                 :apartment="$apartment" 
-                :checkInDisabled="$checkInDisabled" 
-                :checkOutDisabled="$checkOutDisabled" 
+                :disabledDates="$disabledDates" 
             />
         @endif
     </div>
@@ -60,45 +52,23 @@
     @push('scripts')
     <script>
         document.addEventListener("DOMContentLoaded", function() {
-            const disabledForCheckIn = @json($checkInDisabled);
-            const disabledForCheckOut = @json($checkOutDisabled);
-
-            const checkOutPicker = window.flatpickr("#check_out", {
-                minDate: "today",
-                dateFormat: "Y-m-d",
-                disable: disabledForCheckOut,
-            });
+            const disabledDates = @json($disabledDates);
 
             window.flatpickr("#check_in", {
                 minDate: "today",
                 dateFormat: "Y-m-d",
-                disable: disabledForCheckIn,
-                onChange: function(selectedDates, dateStr, instance) {
-                    if (selectedDates[0]) {
-                        const minCheckoutDate = new Date(selectedDates[0].getTime() + 86400000);
-                        checkOutPicker.set("minDate", minCheckoutDate);
-
-                        const sortedDisabled = disabledForCheckIn.sort();
-                        let nextBookedDate = null;
-
-                        for (let i = 0; i < sortedDisabled.length; i++) {
-                            if (sortedDisabled[i] > dateStr) {
-                                nextBookedDate = sortedDisabled[i];
-                                break;
-                            }
-                        }
-
-                        if (nextBookedDate) {
-                            checkOutPicker.set("maxDate", nextBookedDate);
-                        } else {
-                            checkOutPicker.set("maxDate", null);
-                        }
-                    }
-                }
+                disable: disabledDates,
+            });
+            
+            window.flatpickr("#check_out", {
+                minDate: "today",
+                dateFormat: "Y-m-d",
+                disable: disabledDates,
             });
         });
     </script>
     @endpush
+
     @stack('scripts')
 </body>
 </html>

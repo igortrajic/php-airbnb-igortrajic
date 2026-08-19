@@ -128,6 +128,6 @@ class ApartmentController extends Controller
             ->first()
         : null;
 
-        return view('apartments.show', compact('apartment', 'checkInDisabled', 'checkOutDisabled', 'nextAvailable', 'userBooking'));
+        return view('apartments.show', compact('apartment', 'disabledDates', 'nextAvailable', 'userBooking'));
     }
 }
