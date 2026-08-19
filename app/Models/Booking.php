@@ -9,9 +9,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Booking extends Model
 {
     use HasFactory;
-    
-    const STATUS_AVAILABLE   = 'available';
-    const STATUS_UNAVAILABLE = 'unavailable';
+
+    public const STATUS_AVAILABLE   = 'available';
+    public const STATUS_UNAVAILABLE = 'unavailable';
 
     protected $fillable = [
         'status',
@@ -32,7 +32,7 @@ class Booking extends Model
         return [
             'check_in'    => 'date',
             'check_out'   => 'date',
-            'total_price' => 'decimal:2', 
+            'total_price' => 'decimal:2',
         ];
     }
 

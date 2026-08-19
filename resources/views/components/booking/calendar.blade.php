@@ -39,28 +39,3 @@
     </div>
 
 </div>
-
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        const disabledForCheckIn = @json($checkInDisabled);
-        const disabledForCheckOut = @json($checkOutDisabled);
-
-        const checkOutPicker = flatpickr("#check_out", {
-            minDate: "today",
-            dateFormat: "Y-m-d",
-            disable: disabledForCheckOut,
-        });
-
-        flatpickr("#check_in", {
-            minDate: "today",
-            dateFormat: "Y-m-d",
-            disable: disabledForCheckIn,
-            onChange: function(selectedDates, dateStr, instance) {
-                if (selectedDates[0]) {
-                    const minCheckoutDate = new Date(selectedDates[0].getTime() + 86400000);
-                    checkOutPicker.set("minDate", minCheckoutDate);
-                }
-            }
-        });
-    });
-</script>

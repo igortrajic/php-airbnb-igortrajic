@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Throwable;
 use Carbon\CarbonPeriod;
+use Illuminate\View\View;
 
 class ApartmentController extends Controller
 {
@@ -23,7 +24,7 @@ class ApartmentController extends Controller
         if ($request->filter === 'my_apartments' && Auth::check()) {
             $query->where('owner_id', Auth::id());
         } elseif ($request->filter === 'my_bookings' && Auth::check()) {
-            $query->whereHas('bookings', function($q) {
+            $query->whereHas('bookings', function ($q) {
                 $q->where('user_id', Auth::id());
             });
         }
@@ -37,10 +38,10 @@ class ApartmentController extends Controller
             'price_desc'  => $query->orderBy('price_night', 'desc'),
             'guests_asc'  => $query->orderBy('max_guests', 'asc'),
             'guests_desc' => $query->orderBy('max_guests', 'desc'),
-            default       => $query->latest(), 
+            default       => $query->latest(),
         };
 
-        $apartments = $query->paginate(12)->withQueryString(); 
+        $apartments = $query->paginate(12)->withQueryString();
 
         return view('apartments.index', compact('apartments'));
     }
@@ -54,7 +55,7 @@ class ApartmentController extends Controller
     {
         $validated = $request->safe()->except(['images']);
         $validated['owner_id'] = Auth::id();
-        
+
         $uploadedImages = [];
 
         try {
@@ -67,8 +68,8 @@ class ApartmentController extends Controller
             DB::transaction(function () use ($validated, $uploadedImages) {
                 $apartment = Apartment::create($validated);
 
-                $imageRecords = array_map(fn($path) => ['image_url' => $path], $uploadedImages);
-                
+                $imageRecords = array_map(fn ($path) => ['image_url' => $path], $uploadedImages);
+
                 if (!empty($imageRecords)) {
                     $apartment->images()->createMany($imageRecords);
                 }
@@ -89,48 +90,39 @@ class ApartmentController extends Controller
         }
     }
 
-public function show(Apartment $apartment): \Illuminate\View\View
-{
-    $apartment->load('images');
-    $today = now()->startOfDay(); 
+    public function show(Apartment $apartment): View
+    {
+        $apartment->load('images');
+        $today = now()->startOfDay();
 
-    $futureBookings = Booking::query()
-        ->where('apartment_id', $apartment->id)
-        ->where('check_out', '>=', $today)
-        ->get(['check_in', 'check_out']);
+        $futureBookings = Booking::query()
+            ->where('apartment_id', $apartment->id)
+            ->where('check_out', '>=', $today)
+            ->get(['check_in', 'check_out']);
 
-    $checkInDisabled = [];
-    $checkOutDisabled = [];
+        $disabledDates = [];
 
-    foreach ($futureBookings as $booking) {
-        $start = $booking->check_in->copy()->startOfDay();
-        $end   = $booking->check_out->copy()->startOfDay();
+        foreach ($futureBookings as $booking) {
+            $start = $booking->check_in->copy()->startOfDay();
+            $end   = $booking->check_out->copy()->startOfDay();
 
-        $inPeriod = CarbonPeriod::create($start, $end);
-        foreach ($inPeriod as $date) {
-            $checkInDisabled[] = $date->toDateString();
+            $period = CarbonPeriod::create($start, $end);
+            foreach ($period as $date) {
+                $disabledDates[] = $date->toDateString();
+            }
         }
 
-        $outPeriod = CarbonPeriod::create($start, $end);
-        foreach ($outPeriod as $date) {
-            $checkOutDisabled[] = $date->toDateString();
+        $checkDate = $today->copy();
+        while (in_array($checkDate->toDateString(), $disabledDates)) {
+            $checkDate->addDay();
         }
-    }
 
-    $checkDate = $today->copy();
-    while (in_array($checkDate->toDateString(), $checkInDisabled)) {
-        $checkDate->addDay();
-    }
+        $nextAvailable = $checkDate->isSameDay($today)
+            ? null
+            : $checkDate->format('M j, Y');
 
-    $nextAvailable = $checkDate->isSameDay($today) 
-        ? null 
-        : $checkDate->format('M j, Y');
- 
-    return view('apartments.show', compact(
-        'apartment', 
-        'checkInDisabled', 
-        'checkOutDisabled', 
-        'nextAvailable'
-    ));
-}
+        return view('apartments.show', compact('apartment', 'nextAvailable'))
+            ->with('checkInDisabled', $disabledDates)
+            ->with('checkOutDisabled', $disabledDates);
+    }
 }

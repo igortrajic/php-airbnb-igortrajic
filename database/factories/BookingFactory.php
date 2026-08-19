@@ -26,7 +26,7 @@ class BookingFactory extends Factory
         'check_out'   => $checkOut,
         'total_price' => fake()->randomFloat(2, 50, 5000),
         'user_id'     => User::factory(),
-        'apartment_id'=> Apartment::factory(),
+        'apartment_id' => Apartment::factory(),
         ];
     }
 }

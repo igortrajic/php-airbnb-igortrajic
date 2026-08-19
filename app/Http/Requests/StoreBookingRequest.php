@@ -9,17 +9,26 @@ class StoreBookingRequest extends FormRequest
 {
     public function authorize(): bool
     {
-       $apartment = Apartment::find($this->input('apartment_id'));
-       return $apartment && $this->user()->id !== $apartment->owner_id;
+        return true;
     }
 
     public function rules(): array
     {
         return [
-            'apartment_id' => ['required', 'integer', 'exists:apartments,id'],
-            'check_in'     => ['required', 'date', 'after_or_equal:today'],
-            'check_out'    => ['required', 'date', 'after:check_in'],
-        ];
+              'apartment_id' => [
+                  'required',
+                  'exists:apartments,id',
+                  function ($attribute, $value, $fail) {
+                      $apartment = Apartment::find($value);
+
+                      if ($apartment && $apartment->owner_id === $this->user()->id) {
+                          $fail('You cannot book your own apartment.');
+                      }
+                  },
+              ],
+              'check_in'  => ['required', 'date', 'after_or_equal:today'],
+              'check_out' => ['required', 'date', 'after:check_in'],
+          ];
     }
 
     public function messages(): array
