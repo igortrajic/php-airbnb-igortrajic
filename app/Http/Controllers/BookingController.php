@@ -8,9 +8,12 @@ use App\Models\Booking;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\QueryException;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class BookingController extends Controller
 {
+    use AuthorizesRequests;
+
     public function store(StoreBookingRequest $request)
     {
         $validated = $request->validated();
@@ -74,5 +77,15 @@ class BookingController extends Controller
         $booking->delete();
 
         return back()->with('success', 'Booking cancelled successfully. The apartment is now available.');
+    }
+
+    public function index()
+    {
+        $bookings = auth()->user()->bookings()
+            ->with('apartment')
+            ->latest('check_in')
+            ->paginate(10);
+
+        return view('bookings.index', compact('bookings'));
     }
 }
