@@ -65,9 +65,7 @@ class BookingController extends Controller
     }
     public function destroy(Booking $booking)
     {
-        if ($booking->user_id !== auth()->id()) {
-            abort(403, 'Unauthorized action.');
-        }
+        $this->authorize('delete', $booking);
 
         if ($booking->check_in <= now()->toDateString()) {
             return back()->withErrors(['booking' => 'Current or past bookings cannot be cancelled.']);

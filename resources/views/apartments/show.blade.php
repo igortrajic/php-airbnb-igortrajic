@@ -33,7 +33,7 @@
                 ->first() : null;
         @endphp
 
-        @if($userBooking)
+@if($userBooking)
             <div class="p-6 bg-gray-50 border border-gray-200 rounded-2xl mt-6">
                 <h3 class="text-lg font-semibold text-gray-900 mb-2">Your Reservation</h3>
                 <p class="text-sm text-gray-600 mb-4">

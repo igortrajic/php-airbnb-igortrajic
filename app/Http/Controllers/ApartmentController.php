@@ -121,8 +121,13 @@ class ApartmentController extends Controller
             ? null
             : $checkDate->format('M j, Y');
 
-        return view('apartments.show', compact('apartment', 'nextAvailable'))
-            ->with('checkInDisabled', $disabledDates)
-            ->with('checkOutDisabled', $disabledDates);
+        $userBooking = auth()->check()
+        ? $apartment->bookings()
+            ->where('user_id', auth()->id())
+            ->where('check_out', '>=', now())
+            ->first()
+        : null;
+
+        return view('apartments.show', compact('apartment', 'checkInDisabled', 'checkOutDisabled', 'nextAvailable', 'userBooking'));
     }
 }
