@@ -45,4 +45,14 @@ class Booking extends Model
     {
         return $this->belongsTo(Apartment::class);
     }
+
+    public function getIsFutureAttribute(): bool
+    {
+        return $this->check_in > now()->toDateString();
+    }
+
+    public function getIsPastOrCurrentAttribute(): bool
+    {
+        return !$this->is_future;
+    }
 }
