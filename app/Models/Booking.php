@@ -2,14 +2,16 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use App\Models\User;
-use App\Models\Apartment;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Booking extends Model
 {
     use HasFactory;
+    
+    const STATUS_AVAILABLE   = 'available';
+    const STATUS_UNAVAILABLE = 'unavailable';
 
     protected $fillable = [
         'status',
@@ -20,12 +22,26 @@ class Booking extends Model
         'apartment_id',
     ];
 
-    public function user()
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return [
+            'check_in'    => 'date',
+            'check_out'   => 'date',
+            'total_price' => 'decimal:2', 
+        ];
     }
 
-    public function apartment()
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function apartment(): BelongsTo
     {
         return $this->belongsTo(Apartment::class);
     }
