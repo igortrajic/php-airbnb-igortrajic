@@ -14,9 +14,12 @@ use Illuminate\Support\Facades\Storage;
 use Throwable;
 use Carbon\CarbonPeriod;
 use Illuminate\View\View;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class ApartmentController extends Controller
 {
+    use AuthorizesRequests;
+
     public function index(IndexApartmentRequest $request)
     {
         $query = Apartment::with('images');
@@ -128,6 +131,8 @@ class ApartmentController extends Controller
             ->first()
         : null;
 
-        return view('apartments.show', compact('apartment', 'disabledDates', 'nextAvailable', 'userBooking'));
+        return view('apartments.show', compact('apartment', 'nextAvailable', 'userBooking', 'disabledDates'))
+         ->with('checkInDisabled', $disabledDates)
+         ->with('checkOutDisabled', $disabledDates);
     }
 }
