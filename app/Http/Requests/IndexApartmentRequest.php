@@ -25,9 +25,9 @@ class IndexApartmentRequest extends FormRequest
         return [
 
             'filter' => 'nullable|string|in:all,my_apartments,my_bookings',
-            
+
             'location' => 'nullable|string|max:100',
-            
+
             'sort' => 'nullable|string|in:created_desc,price_asc,price_desc,guests_asc,guests_desc',
         ];
     }

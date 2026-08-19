@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ApartmentController;
+use App\Http\Controllers\BookingController;
 
 Route::middleware('guest')->group(function () {
     Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
@@ -18,6 +19,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/apartments/{apartment}/edit', [ApartmentController::class, 'edit'])->name('apartments.edit');
     Route::put('/apartments/{apartment}', [ApartmentController::class, 'update'])->name('apartments.update');
     Route::delete('/apartments/{apartment}', [ApartmentController::class, 'destroy'])->name('apartments.destroy');
+    Route::post('/bookings', [BookingController::class, 'store'])->name('bookings.store');
 });
 
 Route::get('/apartments', [ApartmentController::class, 'index'])->name('apartments.index');
