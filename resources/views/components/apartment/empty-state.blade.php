@@ -11,6 +11,6 @@
         search criteria.</p>
     <a href="{{ route('apartments.index') }}"
         class="px-6 py-2.5 bg-teal-600 hover:bg-teal-700 text-white text-sm font-medium rounded-lg transition-colors shadow-sm">
-        Clear all filters
+        Add New Apartment
     </a>
 </div>

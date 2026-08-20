@@ -149,4 +149,23 @@ class ApartmentController extends Controller
         return redirect()->route('apartments.show', $apartment->id)
             ->with('success', 'Apartment updated successfully.');
     }
+
+public function destroy(Apartment $apartment)
+{
+    $this->authorize('delete', $apartment);
+
+    DB::transaction(function () use ($apartment) {
+        foreach ($apartment->images as $image) {
+            Storage::disk('public')->delete($image->image_url);
+        }
+        $apartment->images()->delete();
+
+        $apartment->bookings()->delete();
+
+        $apartment->delete();
+    });
+
+    return redirect()->route('apartments.index')
+        ->with('success', 'Apartment and its associated data deleted successfully.');
+}
 }
