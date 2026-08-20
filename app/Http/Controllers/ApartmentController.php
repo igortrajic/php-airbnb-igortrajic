@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\RedirectResponse;
 use App\Http\Requests\StoreApartmentRequest;
 use App\Http\Requests\IndexApartmentRequest;
+use App\Http\Requests\UpdateApartmentRequest;
 use App\Models\Apartment;
 use App\Models\Booking;
 use Illuminate\Support\Facades\Auth;
@@ -15,7 +16,6 @@ use Throwable;
 use Carbon\CarbonPeriod;
 use Illuminate\View\View;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-use App\Http\Requests\UpdateApartmentRequest;
 
 class ApartmentController extends Controller
 {
@@ -25,17 +25,58 @@ class ApartmentController extends Controller
     {
         $query = Apartment::with('images');
 
-        if ($request->filter === 'my_apartments' && Auth::check()) {
-            $query->where('owner_id', Auth::id());
-        } elseif ($request->filter === 'my_bookings' && Auth::check()) {
-            $query->whereHas('bookings', function ($q) {
-                $q->where('user_id', Auth::id());
-            });
-        }
-
         if ($request->filled('location')) {
             $query->where('city', 'like', '%' . $request->location . '%');
         }
+
+        match ($request->input('sort', 'created_desc')) {
+            'price_asc'   => $query->orderBy('price_night', 'asc'),
+            'price_desc'  => $query->orderBy('price_night', 'desc'),
+            'guests_asc'  => $query->orderBy('max_guests', 'asc'),
+            'guests_desc' => $query->orderBy('max_guests', 'desc'),
+            default       => $query->latest(),
+        };
+
+        $apartments = $query->paginate(12)->withQueryString();
+
+        return view('apartments.index', compact('apartments'));
+    }
+
+    public function popular()
+    {
+        $popularLocations = Apartment::query()
+            ->select('city')
+            ->join('bookings', 'apartments.id', '=', 'bookings.apartment_id')
+            ->groupBy('city')
+            ->orderByRaw('COUNT(bookings.id) DESC')
+            ->limit(3)
+            ->pluck('city');
+
+        if ($popularLocations->count() < 3) {
+            $fallbackCities = Apartment::query()
+                ->select('city')
+                ->distinct()
+                ->whereNotIn('city', $popularLocations)
+                ->limit(3 - $popularLocations->count())
+                ->pluck('city');
+            
+            $popularLocations = $popularLocations->merge($fallbackCities);
+        }
+
+        $locationsWithApartments = [];
+        foreach ($popularLocations as $city) {
+            $locationsWithApartments[$city] = Apartment::where('city', $city)
+                ->with('images')
+                ->limit(2)
+                ->get();
+        }
+
+        return view('apartments.popular', compact('locationsWithApartments'));
+    }
+
+    public function myApartments(IndexApartmentRequest $request)
+    {
+        $query = Apartment::with('images')->where('owner_id', Auth::id());
 
         match ($request->input('sort', 'created_desc')) {
             'price_asc'   => $query->orderBy('price_night', 'asc'),
@@ -136,41 +177,40 @@ class ApartmentController extends Controller
          ->with('checkInDisabled', $disabledDates)
          ->with('checkOutDisabled', $disabledDates);
     }
+    
     public function edit(Apartment $apartment)
     {
         $this->authorize('update', $apartment);
         return view('apartments.edit', compact('apartment'));
     }
+
     public function update(UpdateApartmentRequest $request, Apartment $apartment)
     {
-
         $apartment->update($request->validated());
 
         return redirect()->route('apartments.show', $apartment->id)
             ->with('success', 'Apartment updated successfully.');
     }
 
-public function destroy(Apartment $apartment)
-{
-    $this->authorize('delete', $apartment);
+    public function destroy(Apartment $apartment)
+    {
+        $this->authorize('delete', $apartment);
 
-    $imagePaths = $apartment->images->pluck('image_url')->toArray();
+        $imagePaths = $apartment->images->pluck('image_url')->toArray();
 
-    DB::transaction(function () use ($apartment) {
-        $apartment->images()->delete();
+        DB::transaction(function () use ($apartment) {
+            $apartment->images()->delete();
+            $apartment->bookings()->delete();
+            $apartment->delete();
+        });
 
-        $apartment->bookings()->delete();
+        DB::afterCommit(function () use ($imagePaths) {
+            if (!empty($imagePaths)) {
+                Storage::disk('public')->delete($imagePaths);
+            }
+        });
 
-        $apartment->delete();
-    });
-
-    DB::afterCommit(function () use ($imagePaths) {
-        foreach ($imagePaths as $path) {
-            Storage::disk('public')->delete($path);
-        }
-    });
-
-    return redirect()->route('apartments.index')
-        ->with('success', 'Apartment and its associated data deleted successfully.');
-}
+        return redirect()->route('apartments.index')
+            ->with('success', 'Apartment and its associated data deleted successfully.');
+    }
 }
