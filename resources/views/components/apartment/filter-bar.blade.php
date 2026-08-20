@@ -3,7 +3,7 @@
 
         <x-apartment.filter-tabs />
 
-        @if(request()->routeIs('apartments.index'))
+        @if(request()->routeIs('apartments.index', 'apartments.my'))
             <div class="h-8 w-px bg-gray-200 hidden md:block"></div>
 
             <div class="relative w-full md:w-64 shrink-0">

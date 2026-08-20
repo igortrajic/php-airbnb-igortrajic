@@ -23,6 +23,16 @@ class ApartmentController extends Controller
 
     public function index(IndexApartmentRequest $request)
     {
+        if ($request->filter === 'my_apartments') {
+            return redirect()->route('apartments.my');
+        }
+        if ($request->filter === 'my_bookings') {
+            return redirect()->route('bookings.index');
+        }
+        if ($request->filter === 'popular') {
+            return redirect()->route('apartments.popular');
+        }
+
         $query = Apartment::with('images');
 
         if ($request->filled('location')) {
@@ -40,38 +50,6 @@ class ApartmentController extends Controller
         $apartments = $query->paginate(12)->withQueryString();
 
         return view('apartments.index', compact('apartments'));
-    }
-
-    public function popular()
-    {
-        $popularLocations = Apartment::query()
-            ->select('city')
-            ->join('bookings', 'apartments.id', '=', 'bookings.apartment_id')
-            ->groupBy('city')
-            ->orderByRaw('COUNT(bookings.id) DESC')
-            ->limit(3)
-            ->pluck('city');
-
-        if ($popularLocations->count() < 3) {
-            $fallbackCities = Apartment::query()
-                ->select('city')
-                ->distinct()
-                ->whereNotIn('city', $popularLocations)
-                ->limit(3 - $popularLocations->count())
-                ->pluck('city');
-            
-            $popularLocations = $popularLocations->merge($fallbackCities);
-        }
-
-        $locationsWithApartments = [];
-        foreach ($popularLocations as $city) {
-            $locationsWithApartments[$city] = Apartment::where('city', $city)
-                ->with('images')
-                ->limit(2)
-                ->get();
-        }
-
-        return view('apartments.popular', compact('locationsWithApartments'));
     }
 
     public function myApartments(IndexApartmentRequest $request)
