@@ -33,13 +33,19 @@
                     {{ \Carbon\Carbon::parse($userBooking->check_in)->format('M j, Y') }} &rarr; {{ \Carbon\Carbon::parse($userBooking->check_out)->format('M j, Y') }}
                 </p>
 
-                <form action="{{ route('bookings.destroy', $userBooking->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to cancel this booking?');">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit" class="py-2.5 px-4 bg-red-600 hover:bg-red-700 text-white font-medium rounded-xl transition">
-                        Cancel Booking
-                    </button>
-                </form>
+                @if($userBooking->is_future)
+                    <form action="{{ route('bookings.destroy', $userBooking->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to cancel this booking?');">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="py-2.5 px-4 bg-red-600 hover:bg-red-700 text-white font-medium rounded-xl transition text-sm">
+                            Cancel Booking
+                        </button>
+                    </form>
+                @else
+                    <span class="text-xs font-medium text-gray-500 bg-gray-200 px-3 py-1.5 rounded-lg inline-block">
+                        Cannot Cancel
+                    </span>
+                @endif
             </div>
         @else
             <x-booking.cta 

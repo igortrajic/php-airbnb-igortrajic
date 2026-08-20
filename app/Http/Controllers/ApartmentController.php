@@ -15,6 +15,7 @@ use Throwable;
 use Carbon\CarbonPeriod;
 use Illuminate\View\View;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use App\Http\Requests\UpdateApartmentRequest;
 
 class ApartmentController extends Controller
 {
@@ -134,5 +135,18 @@ class ApartmentController extends Controller
         return view('apartments.show', compact('apartment', 'nextAvailable', 'userBooking', 'disabledDates'))
          ->with('checkInDisabled', $disabledDates)
          ->with('checkOutDisabled', $disabledDates);
+    }
+    public function edit(Apartment $apartment)
+    {
+        $this->authorize('update', $apartment);
+        return view('apartments.edit', compact('apartment'));
+    }
+    public function update(UpdateApartmentRequest $request, Apartment $apartment)
+    {
+
+        $apartment->update($request->validated());
+
+        return redirect()->route('apartments.show', $apartment->id)
+            ->with('success', 'Apartment updated successfully.');
     }
 }
