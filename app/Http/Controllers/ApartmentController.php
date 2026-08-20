@@ -154,15 +154,20 @@ public function destroy(Apartment $apartment)
 {
     $this->authorize('delete', $apartment);
 
+    $imagePaths = $apartment->images->pluck('image_url')->toArray();
+
     DB::transaction(function () use ($apartment) {
-        foreach ($apartment->images as $image) {
-            Storage::disk('public')->delete($image->image_url);
-        }
         $apartment->images()->delete();
 
         $apartment->bookings()->delete();
 
         $apartment->delete();
+    });
+
+    DB::afterCommit(function () use ($imagePaths) {
+        foreach ($imagePaths as $path) {
+            Storage::disk('public')->delete($path);
+        }
     });
 
     return redirect()->route('apartments.index')

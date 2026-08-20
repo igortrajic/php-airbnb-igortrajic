@@ -37,9 +37,9 @@
                     <h3 class="text-sm font-semibold text-gray-900 mb-4">Details</h3>
                     
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                        <x-form.input type="number" step="0.01" name="price_night" label="Price / night (€)" :value="$apartment->price_night" />
-                        <x-form.input type="number" name="max_guests" label="Max guests" :value="$apartment->max_guests" />
-                        <x-form.input type="number" name="size" label="Size (m²)" :value="$apartment->size" />
+                        <x-form.input type="number" step="0.01" name="price_night" label="Price / night (€)" :value="$apartment->price_night" required />
+                        <x-form.input type="number" name="max_guests" label="Max guests" :value="$apartment->max_guests" required />
+                        <x-form.input type="number" name="size" label="Size (m²)" :value="$apartment->size" required />
                     </div>
                 </div>
 
