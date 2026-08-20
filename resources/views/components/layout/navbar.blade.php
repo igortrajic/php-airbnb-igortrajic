@@ -16,7 +16,7 @@
             </a>
             <div class="h-4 w-px bg-gray-300"></div>
         @endif
-        <span class="text-sm text-gray-500">{{ Auth::user()?->name ?? 'Guest' }}</span>
+        <a href="{{ route('profile.edit') }}" class="text-sm font-medium text-gray-700 hover:text-emerald-600 transition cursor-pointer">{{ Auth::user()?->name ?? 'Guest' }}</a>
         @auth
             <form action="{{ route('logout') }}" method="POST">
                 @csrf

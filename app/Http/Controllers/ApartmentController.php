@@ -155,7 +155,7 @@ class ApartmentController extends Controller
          ->with('checkInDisabled', $disabledDates)
          ->with('checkOutDisabled', $disabledDates);
     }
-    
+
     public function edit(Apartment $apartment)
     {
         $this->authorize('update', $apartment);
