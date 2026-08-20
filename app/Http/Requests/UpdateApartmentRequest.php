@@ -17,11 +17,11 @@ class UpdateApartmentRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'title'       => ['required', 'string', 'max:255'],
-            'city'        => ['required', 'string', 'max:255'],
-            'price_night' => ['required', 'numeric', 'min:0'],
-            'max_guests'  => ['required', 'integer', 'min:1'],
-            'size'        => ['required', 'integer', 'min:1'],
+            'title'       => ['required', 'string', 'max:100'],
+            'city'        => ['required', 'string', 'max:100'],
+            'price_night' => ['required', 'numeric', 'min:0', 'max:10000'],
+            'max_guests'  => ['required', 'integer', 'min:1', 'max:100'],
+            'size'        => ['required', 'numeric', 'min:1', 'max:10000'],
         ];
     }
 

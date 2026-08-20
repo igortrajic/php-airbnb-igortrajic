@@ -12,6 +12,6 @@ class ApartmentPolicy
      */
     public function update(User $user, Apartment $apartment): bool
     {
-        return $user->id === $apartment->owner_id;
+        return $user->isAdmin() || $user->id === $apartment->owner_id;
     }
 }
