@@ -9,3 +9,13 @@
         {{ $errors->first('booking') }}
     </div>
 @endif
+
+@if (session('error'))
+    <div class="mb-6 rounded-xl bg-red-50 p-4 border border-red-200 shadow-sm">
+        <div class="flex">
+            <div class="ml-3">
+                <p class="text-sm font-medium text-red-800">{{ session('error') }}</p>
+            </div>
+        </div>
+    </div>
+@endif

@@ -30,7 +30,12 @@ class UserController extends Controller
             return back()->with('error', 'You cannot delete your own account.');
         }
 
+        if ($user->apartments()->exists() || $user->bookings()->exists()) {
+            return back()->with('error', 'Cannot delete this user because they have associated apartments or bookings.');
+        }
+
         $user->delete();
+
         return back()->with('success', 'User deleted successfully.');
     }
 }
