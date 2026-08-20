@@ -13,7 +13,9 @@
             <div class="flex flex-col items-center justify-center text-center py-4">
                 <h3 class="font-medium text-gray-900">This is your property</h3>
                 <p class="text-sm text-gray-500 mt-1">You cannot book your own apartment.</p>
-                <a href="#" class="mt-4 text-sm text-teal-600 font-medium hover:underline">Manage your apartment &rarr;</a>
+                <a href="{{ route('apartments.edit', $apartment->id) }}" class="text-sm font-medium text-emerald-600 hover:text-emerald-700 transition inline-flex items-center gap-1">
+        Manage your apartment &rarr;
+    </a>
             </div>
         @else
             <form action="{{ route('bookings.store') }}" method="POST" class="flex flex-col gap-5">
