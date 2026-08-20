@@ -5,10 +5,12 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="bg-white min-h-screen">
-    <x-layout.navbar />
+    <x-layout.navbar :showListProperty="true" />
 
-    <div class="max-w-4xl mx-auto mt-8 px-4 pb-20">
+    <div class="max-w-7xl mx-auto mt-8 px-4 pb-20">
         <h1 class="text-3xl font-semibold text-gray-900 mb-6">My Bookings</h1>
+
+        <x-apartment.filter-bar />
 
         <x-layout.alerts />
 
