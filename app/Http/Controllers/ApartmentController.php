@@ -52,6 +52,38 @@ class ApartmentController extends Controller
         return view('apartments.index', compact('apartments'));
     }
 
+    public function popular()
+    {
+        $popularLocations = Apartment::query()
+            ->select('city')
+            ->join('bookings', 'apartments.id', '=', 'bookings.apartment_id')
+            ->groupBy('city')
+            ->orderByRaw('COUNT(bookings.id) DESC')
+            ->limit(3)
+            ->pluck('city');
+
+        if ($popularLocations->count() < 3) {
+            $fallbackCities = Apartment::query()
+                ->select('city')
+                ->distinct()
+                ->whereNotIn('city', $popularLocations)
+                ->limit(3 - $popularLocations->count())
+                ->pluck('city');
+
+            $popularLocations = $popularLocations->merge($fallbackCities);
+        }
+
+        $locationsWithApartments = [];
+        foreach ($popularLocations as $city) {
+            $locationsWithApartments[$city] = Apartment::where('city', $city)
+                ->with('images')
+                ->limit(2)
+                ->get();
+        }
+
+        return view('apartments.popular', compact('locationsWithApartments'));
+    }
+
     public function myApartments(IndexApartmentRequest $request)
     {
         $query = Apartment::with('images')->where('owner_id', Auth::id());
