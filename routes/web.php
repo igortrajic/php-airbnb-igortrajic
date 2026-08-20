@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ApartmentController;
 use App\Http\Controllers\BookingController;
+use App\Http\Controllers\ProfileController;
 
 Route::middleware('guest')->group(function () {
     Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
@@ -17,7 +18,7 @@ Route::get('/apartments/popular', [ApartmentController::class, 'popular'])->name
 
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
-    
+
     Route::get('/my-apartments', [ApartmentController::class, 'myApartments'])->name('apartments.my');
     Route::get('/my-bookings', [BookingController::class, 'index'])->name('bookings.index');
 
@@ -29,6 +30,10 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/bookings', [BookingController::class, 'store'])->name('bookings.store');
     Route::delete('/bookings/{booking}', [BookingController::class, 'destroy'])->name('bookings.destroy');
+
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::patch('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password.update');
 });
 
 Route::get('/apartments/{apartment}', [ApartmentController::class, 'show'])->name('apartments.show');
