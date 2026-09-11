@@ -33,6 +33,20 @@
                     <x-form.input name="city" label="City" placeholder="e.g. Paris" />
                 </x-form.section>
 
+                <div class="mb-6">
+    <label class="block text-sm font-medium text-gray-700 mb-3">Amenities</label>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 bg-gray-50 p-4 rounded-xl border border-gray-200">
+        @foreach($amenities as $amenity)
+            <label class="inline-flex items-center cursor-pointer">
+                <input type="checkbox" name="amenities[]" value="{{ $amenity->id }}" 
+                    class="rounded-md border-gray-300 text-emerald-600 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 w-5 h-5"
+                    @if(isset($apartment) && $apartment->amenities->contains($amenity->id)) checked @endif>
+                <span class="ml-3 text-sm text-gray-700 font-medium">{{ $amenity->name }}</span>
+            </label>
+        @endforeach
+    </div>
+</div>
+
                 <x-form.section title="Details">
                     <div class="grid grid-cols-3 gap-4">
                         <x-form.input name="price_night" label="Price / night (€)" type="number" placeholder="85"

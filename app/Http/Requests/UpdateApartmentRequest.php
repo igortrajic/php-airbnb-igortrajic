@@ -22,6 +22,8 @@ class UpdateApartmentRequest extends FormRequest
             'price_night' => ['required', 'numeric', 'min:0', 'max:10000'],
             'max_guests'  => ['required', 'integer', 'min:1', 'max:100'],
             'size'        => ['required', 'numeric', 'min:0', 'max:10000'],
+            'amenities' => ['nullable', 'array'],
+            'amenities.*' => ['exists:amenities,id'],
         ];
     }
 

@@ -16,7 +16,7 @@ class ApartmentPolicy
     }
 
     public function delete(User $user, Apartment $apartment): bool
-{
-    return $user->isAdmin() || $user->id === $apartment->owner_id;
-}
+    {
+        return $user->isAdmin() || $user->id === $apartment->owner_id;
+    }
 }

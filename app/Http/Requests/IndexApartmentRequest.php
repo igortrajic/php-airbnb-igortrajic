@@ -29,6 +29,10 @@ class IndexApartmentRequest extends FormRequest
             'location' => 'nullable|string|max:100',
 
             'sort' => 'nullable|string|in:created_desc,price_asc,price_desc,guests_asc,guests_desc',
+
+            'amenities' => ['nullable', 'array'],
+
+            'amenities.*' => ['exists:amenities,id'],
         ];
     }
 }
