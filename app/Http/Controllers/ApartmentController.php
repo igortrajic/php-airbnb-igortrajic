@@ -7,6 +7,7 @@ use App\Http\Requests\StoreApartmentRequest;
 use App\Http\Requests\IndexApartmentRequest;
 use App\Http\Requests\UpdateApartmentRequest;
 use App\Models\Apartment;
+use App\Models\Amenity;
 use App\Models\Booking;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -39,6 +40,14 @@ class ApartmentController extends Controller
             $query->where('city', 'like', '%' . $request->location . '%');
         }
 
+        if ($request->filled('amenities')) {
+            foreach ($request->input('amenities') as $amenityId) {
+                $query->whereHas('amenities', function ($q) use ($amenityId) {
+                    $q->where('amenities.id', $amenityId);
+                });
+            }
+        }
+
         match ($request->input('sort', 'created_desc')) {
             'price_asc'   => $query->orderBy('price_night', 'asc'),
             'price_desc'  => $query->orderBy('price_night', 'desc'),
@@ -49,7 +58,13 @@ class ApartmentController extends Controller
 
         $apartments = $query->paginate(12)->withQueryString();
 
-        return view('apartments.index', compact('apartments'));
+        $amenities = Amenity::all();
+        $filters = [
+            'location' => $request->location,
+            'amenities' => $request->input('amenities', []),
+        ];
+
+        return view('apartments.index', compact('apartments', 'amenities', 'filters'));
     }
 
     public function popular()
@@ -98,12 +113,19 @@ class ApartmentController extends Controller
 
         $apartments = $query->paginate(12)->withQueryString();
 
-        return view('apartments.index', compact('apartments'));
+        $amenities = Amenity::all();
+        $filters = [
+            'location' => $request->location,
+            'amenities' => $request->input('amenities', []),
+        ];
+
+        return view('apartments.index', compact('apartments', 'amenities', 'filters'));
     }
 
     public function create()
     {
-        return view('apartments.create');
+        $amenities = Amenity::all();
+        return view('apartments.create', compact('amenities'));
     }
 
     public function store(StoreApartmentRequest $request): RedirectResponse
@@ -120,13 +142,17 @@ class ApartmentController extends Controller
                 }
             }
 
-            DB::transaction(function () use ($validated, $uploadedImages) {
+            DB::transaction(function () use ($validated, $uploadedImages, $request) {
                 $apartment = Apartment::create($validated);
 
                 $imageRecords = array_map(fn ($path) => ['image_url' => $path], $uploadedImages);
 
                 if (!empty($imageRecords)) {
                     $apartment->images()->createMany($imageRecords);
+                }
+
+                if ($request->has('amenities')) {
+                    $apartment->amenities()->attach($request->input('amenities'));
                 }
             });
 
@@ -147,7 +173,8 @@ class ApartmentController extends Controller
 
     public function show(Apartment $apartment): View
     {
-        $apartment->load('images');
+        $apartment->load(['images', 'amenities']);
+
         $today = now()->startOfDay();
 
         $futureBookings = Booking::query()
@@ -191,12 +218,17 @@ class ApartmentController extends Controller
     public function edit(Apartment $apartment)
     {
         $this->authorize('update', $apartment);
-        return view('apartments.edit', compact('apartment'));
+
+        $amenities = Amenity::all();
+
+        return view('apartments.edit', compact('apartment', 'amenities'));
     }
 
     public function update(UpdateApartmentRequest $request, Apartment $apartment)
     {
         $apartment->update($request->validated());
+
+        $apartment->amenities()->sync($request->input('amenities', []));
 
         return redirect()->route('apartments.show', $apartment->id)
             ->with('success', 'Apartment updated successfully.');

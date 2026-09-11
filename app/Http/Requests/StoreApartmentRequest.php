@@ -30,6 +30,8 @@ class StoreApartmentRequest extends FormRequest
             'size' => 'required|numeric|min:0|max:10000',
             'images' => 'nullable|array|max:5',
             'images.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
+            'amenities' => ['nullable', 'array'],
+            'amenities.*' => ['exists:amenities,id'],
         ];
     }
 }

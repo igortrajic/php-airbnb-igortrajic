@@ -15,7 +15,9 @@
         <x-apartment.gallery :images="$apartment->images" />
         <x-apartment.header :apartment="$apartment" :nextAvailable="$nextAvailable" />
         <x-apartment.stats :apartment="$apartment" />
-        
+
+        <x-apartment.amenities-list :amenities="$apartment->amenities" />
+
         @if($userBooking)
             <x-booking.user-reservation :booking="$userBooking" />
         @else

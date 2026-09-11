@@ -44,4 +44,9 @@ class User extends Authenticatable
         return $this->role === 'admin';
     }
 
+    public function favorites()
+    {
+        return $this->belongsToMany(Apartment::class, 'favorites', 'user_id', 'apartment_id')->withTimestamps();
+    }
+
 }

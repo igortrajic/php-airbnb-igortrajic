@@ -7,6 +7,7 @@ use App\Http\Controllers\BookingController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Middleware\EnsureIsAdmin;
+use App\Http\Controllers\FavoriteController;
 
 Route::middleware('guest')->group(function () {
     Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
@@ -36,6 +37,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::patch('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password.update');
+
+    Route::post('/apartments/{apartment}/favorite', [FavoriteController::class, 'store'])->name('favorites.store');
+    Route::get('/favorites', [FavoriteController::class, 'index'])->name('favorites.index');
 });
 
 Route::middleware(['auth', EnsureIsAdmin::class])->prefix('admin')->name('admin.')->group(function () {
